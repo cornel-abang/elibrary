@@ -21,6 +21,7 @@ nav ul {
     margin: 0;
     display: inline-flex; /* Use inline-flex for centered items */
     justify-content: center; /* Center items horizontally */
+    flex-wrap: wrap; /* Allow items to wrap if needed */
 }
 
 nav ul li {
@@ -28,21 +29,18 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #0c1218;
+    color: #fff; /* Plain white text */
     text-decoration: none;
     font-weight: bold;
     font-size: 16px;
     padding: 10px 15px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
+    background: none; /* Remove background */
+    border: none; /* Remove border */
 }
 
 nav ul li a:hover {
-    background-color: #495057; /* Darker shade of background color */
-    border-radius: 5px;
-}
-
-nav ul li a i {
-    margin-right: 5px; /* Adjust icon spacing */
+    color: #dcdcdc; /* Light highlight on hover */
 }
 
 #content {
@@ -77,7 +75,7 @@ ul li {
 }
 
 ul li:hover {
-    background-color: #eaeaea; /* Lighter grey */
+    background-color: #eaeaea;
 }
 
 ul li a {

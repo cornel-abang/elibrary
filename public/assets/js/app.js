@@ -1,10 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     const content = document.getElementById('content');
+    const homeLink = document.getElementById('home-link');
+    const loginLink = document.getElementById('login-link');
+    const registerLink = document.getElementById('register-link');
+    const logoutLink = document.getElementById('logout-link');
 
     function renderHomePage() {
         const token = localStorage.getItem('token');
         if (!token) {
             renderLoginPage();
+            hideLogoutShowLoginAndRegisterLinks();
             return;
         }
 
@@ -21,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            let html = '<h1>Books</h1><ul>';
+            let html = '<h1>Books</h1><ul class="books">';
             data.forEach(book => {
                 html += `<li><a href="#" class="book-link" data-id="${book.id}">${book.title}</a> by <a href="#" class="author-link" data-id="${book.author.id}">${book.author.name}</a></li>`;
             });
@@ -50,6 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('add-author-button').addEventListener('click', renderAddAuthorForm);
         })
         .catch(error => console.error('Error fetching books:', error));
+
+        showLogoutHideLoginAndRegisterLinks();
     }
 
     function renderBookDetailsPage(bookId) {
@@ -309,15 +316,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteBook(bookId) {
-        const token = localStorage.getItem('token');
-        fetch(`/api/books/${bookId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => renderHomePage())
-        .catch(error => console.error('Error deleting book:', error));
+        if (confirm("Are you sure about deleting that Book?")) {
+            const token = localStorage.getItem('token');
+            fetch(`/api/books/${bookId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(() => renderHomePage())
+            .catch(error => console.error('Error deleting book:', error));
+        }
     }
 
     function deleteAuthor(authorId) {
@@ -365,8 +374,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     document.getElementById('login-errors').innerText = data.error;
                 }
+            }).catch((error) => {
+                console.log("Something is wrong - "+error);
             });
         });
+
+        hideLogoutShowLoginAndRegisterLinks();
     }
 
     function renderRegisterPage() {
@@ -416,10 +429,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function logout() {
+        localStorage.removeItem('token');
+        renderLoginPage();
+        hideLogoutShowLoginAndRegisterLinks();
+    }
+
+    function hideLogoutShowLoginAndRegisterLinks(){
+        logoutLink.style.display = 'none';
+        loginLink.style.display = 'inline';
+        registerLink.style.display = 'inline';
+    }
+
+    function showLogoutHideLoginAndRegisterLinks(){
+        logoutLink.style.display = 'inline';
+        loginLink.style.display = 'none';
+        registerLink.style.display = 'none';
+    }
+    
     // Event listeners for navigation links
-    document.getElementById('home-link').addEventListener('click', renderHomePage);
-    document.getElementById('login-link').addEventListener('click', renderLoginPage);
-    document.getElementById('register-link').addEventListener('click', renderRegisterPage);
+    homeLink.addEventListener('click', renderHomePage);
+    loginLink.addEventListener('click', renderLoginPage);
+    registerLink.addEventListener('click', renderRegisterPage);
+    logoutLink.addEventListener('click', logout);
 
     // Initially render the home page or login page based on token existence
     if (localStorage.getItem('token')) {
