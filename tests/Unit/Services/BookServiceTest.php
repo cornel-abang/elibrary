@@ -37,6 +37,7 @@ class BookServiceTest extends TestCase
         $bookDetails = [
             'title' => 'Test Book',
             'author_id' => \App\Models\Author::factory()->create()->id,
+            'description' => 'Just a description'
         ];
 
         $book = $this->bookService->storeBook($bookDetails);

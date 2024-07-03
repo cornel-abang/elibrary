@@ -61,6 +61,7 @@ class AuthorControllerTest extends TestCase
     {
         $authorData = [
             'name' => $this->faker->name,
+            'bio' => $this->faker->sentence,
         ];
 
         $response = $this->postJson('/api/authors', $authorData);
@@ -97,7 +98,7 @@ class AuthorControllerTest extends TestCase
     public function testUpdate()
     {
         $author = Author::factory()->create();
-        $updatedData = ['name' => 'Another Name'];
+        $updatedData = ['name' => 'Another Name', 'bio' => 'another bio'];
 
         /**
          * Just making sure..lol

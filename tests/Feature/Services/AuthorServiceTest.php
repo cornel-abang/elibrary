@@ -39,7 +39,7 @@ class AuthorServiceTest extends TestCase
 
     public function testStoreAuthor()
     {
-        $details = ['name' => 'Mr Agbado'];
+        $details = ['name' => 'Mr Agbado', 'bio' => 'ermmm..hehehe'];
 
         $author = $this->authorService->storeAuthor($details);
 

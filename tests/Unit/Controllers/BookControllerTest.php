@@ -2,13 +2,14 @@
 
 namespace Tests\Unit\Controllers;
 
-use Tests\TestCase;
 use Mockery;
+use Tests\TestCase;
 use App\Models\Book;
+use App\Models\Author;
 use App\Services\BookService;
 use App\Http\Requests\StoreBookRequest;
-use App\Http\Requests\UpdateBookRequest;
 use App\Http\Controllers\BookController;
+use App\Http\Requests\UpdateBookRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BookControllerTest extends TestCase
@@ -63,11 +64,13 @@ class BookControllerTest extends TestCase
 
     public function testShow()
     {
-        $book = Book::factory()->make();
+        $book = Book::factory()
+            ->for(Author::factory())
+            ->create();
 
         $response = $this->controller->show($book);
-
-        $this->assertEquals($book, $response);
+        
+        $this->assertEquals($book->id, $response->id);
     }
 
     public function testUpdate()

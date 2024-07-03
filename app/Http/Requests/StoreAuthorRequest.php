@@ -13,7 +13,8 @@ class StoreAuthorRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string'
+            'name' => 'required|string',
+            'bio' => 'required|string',
         ];
     }
 

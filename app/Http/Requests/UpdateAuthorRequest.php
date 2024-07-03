@@ -14,6 +14,7 @@ class UpdateAuthorRequest extends BaseRequest
     {
         return [
             'name' => 'required|string',
+            'bio' => 'required|string',
         ];
     }
 

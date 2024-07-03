@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Services\BookService;
-use App\Http\Requests\storeBookRequest;
-use App\Http\Requests\updateBookRequest;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 
 class BookController extends Controller
 {
@@ -22,7 +22,7 @@ class BookController extends Controller
         return $this->service->fetchBooks();
     }
 
-    public function store(storeBookRequest $request)
+    public function store(StoreBookRequest $request)
     {
         return $this->service->storeBook($request->validated());
     }
@@ -35,11 +35,13 @@ class BookController extends Controller
     */
     public function show(Book $book)
     {
+        $book = Book::with('author')->find($book->id);
+
         return $book;
     }
 
     public function update(
-        updateBookRequest $request, 
+        UpdateBookRequest $request, 
         Book $book
     )
     {

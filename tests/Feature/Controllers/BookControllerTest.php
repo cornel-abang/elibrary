@@ -64,7 +64,8 @@ class BookControllerTest extends TestCase
     {
         $bookData = [
             'title' => $this->faker->title,
-            'author_id' => Author::factory()->create()->id
+            'author_id' => Author::factory()->create()->id,
+            'description' => $this->faker->sentence,
         ];
 
         $response = $this->postJson('/api/books', $bookData);
@@ -104,7 +105,8 @@ class BookControllerTest extends TestCase
         $book = Book::factory()->create();
         $updatedData = [
             'title' => 'Updated Title', 
-            'author_id' => Book::factory()->create()->id
+            'author_id' => Author::factory()->create()->id,
+            'description' => $this->faker->sentence,
         ];
 
         $response = $this->putJson("/api/books/{$book->id}", $updatedData);

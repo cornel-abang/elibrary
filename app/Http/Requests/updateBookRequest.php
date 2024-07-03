@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 
-class updateBookRequest extends BaseRequest
+class UpdateBookRequest extends BaseRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,8 @@ class updateBookRequest extends BaseRequest
     {
         return [
             'title' => 'required|string',
-            'author_id' => 'required|exists:authors,id'
+            'author_id' => 'required|exists:authors,id',
+            'description' => 'required|string',
         ];
     }
 
