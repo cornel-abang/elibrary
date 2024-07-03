@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginLink = document.getElementById('login-link');
     const registerLink = document.getElementById('register-link');
     const logoutLink = document.getElementById('logout-link');
+    const searchContainer = document.getElementById('search-container');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
 
     function renderHomePage() {
         const token = localStorage.getItem('token');
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            let html = '<h1>Books</h1><ul class="books">';
+            let html = '<h1>Books</h1><ul>';
             data.forEach(book => {
                 html += `<li><a href="#" class="book-link" data-id="${book.id}">${book.title}</a> by <a href="#" class="author-link" data-id="${book.author.id}">${book.author.name}</a></li>`;
             });
@@ -57,6 +60,21 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching books:', error));
 
         showLogoutHideLoginAndRegisterLinks();
+        hideSearchForm(false);
+        clearSearchInput(); // after every home navigation
+    }
+
+    function hideSearchForm(yes = true)
+    {
+        let search = document.getElementById("search-container");
+
+        if (yes) {
+            search.style.display = 'none';
+        }else{
+            search.style.display = 'block';
+        }
+
+        return;
     }
 
     function renderBookDetailsPage(bookId) {
@@ -128,28 +146,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="book-errors" style="color: red;"></div>
                 <label for="title">Title:</label>
                 <input type="text" id="title" required>
-                <label for="author_id">Author ID:</label>
-                <input type="number" id="author_id" required>
+                <label for="author">Author:</label>
+                <select id="author" required></select>
                 <label for="description">Description:</label>
                 <textarea id="description" required></textarea>
                 <button type="submit">Add Book</button>
             </form>
         `;
         content.innerHTML = html;
-
+    
+        fetchAndPopulateAuthors('author');
+    
         document.getElementById('book-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const title = document.getElementById('title').value;
-            const author_id = document.getElementById('author_id').value;
+            const authorId = document.getElementById('author').value;
             const description = document.getElementById('description').value;
-
+    
             fetch('/api/books', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({ title, author_id, description })
+                body: JSON.stringify({ title, author_id: authorId, description })
             })
             .then(response => response.json())
             .then(data => {
@@ -208,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Modified renderEditBookForm
     function renderEditBookForm(bookId) {
         const token = localStorage.getItem('token');
         fetch(`/api/books/${bookId}`, {
@@ -223,8 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div id="edit-book-errors" style="color: red;"></div>
                     <label for="title">Title:</label>
                     <input type="text" id="title" value="${book.title}" required>
-                    <label for="author_id">Author ID:</label>
-                    <input type="number" id="author_id" value="${book.author_id}" required>
+                    <label for="author">Author:</label>
+                    <select id="author" required></select>
                     <label for="description">Description:</label>
                     <textarea id="description" required>${book.description}</textarea>
                     <button type="submit">Update Book</button>
@@ -232,10 +253,13 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             content.innerHTML = html;
 
+            fetchAndPopulateAuthors('author');
+            document.getElementById('author').value = book.author_id;
+
             document.getElementById('edit-book-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const title = document.getElementById('title').value;
-                const author_id = document.getElementById('author_id').value;
+                const authorId = document.getElementById('author').value;
                 const description = document.getElementById('description').value;
 
                 fetch(`/api/books/${bookId}`, {
@@ -244,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ title, author_id, description })
+                    body: JSON.stringify({ title, author_id: authorId, description })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -315,6 +339,28 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching author:', error));
     }
 
+    // Fetch authors and populate the dropdown select
+    function fetchAndPopulateAuthors(selectElementId) {
+        const token = localStorage.getItem('token');
+        fetch('/api/authors', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(authors => {
+            const selectElement = document.getElementById(selectElementId);
+            selectElement.innerHTML = '';
+            authors.forEach(author => {
+                const option = document.createElement('option');
+                option.value = author.id;
+                option.text = author.name;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching authors:', error));
+    }
+
     function deleteBook(bookId) {
         if (confirm("Are you sure about deleting that Book?")) {
             const token = localStorage.getItem('token');
@@ -330,15 +376,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteAuthor(authorId) {
-        const token = localStorage.getItem('token');
-        fetch(`/api/authors/${authorId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => renderHomePage())
-        .catch(error => console.error('Error deleting author:', error));
+        if (confirm("Are you sure about deleting this Author?")) {
+            const token = localStorage.getItem('token');
+            fetch(`/api/authors/${authorId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(() => renderHomePage())
+            .catch(error => console.error('Error deleting author:', error));
+        }
     }
 
     function renderLoginPage() {
@@ -433,29 +481,100 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('token');
         renderLoginPage();
         hideLogoutShowLoginAndRegisterLinks();
+        hideSearchForm();
     }
 
+    /**
+     * Hide the entire link (with their parent li)
+     */
     function hideLogoutShowLoginAndRegisterLinks(){
-        logoutLink.style.display = 'none';
-        loginLink.style.display = 'inline';
-        registerLink.style.display = 'inline';
+        logoutLink.parentElement.style.display = 'none';
+        loginLink.parentElement.style.display = 'inline';
+        registerLink.parentElement.style.display = 'inline';
     }
 
     function showLogoutHideLoginAndRegisterLinks(){
-        logoutLink.style.display = 'inline';
-        loginLink.style.display = 'none';
-        registerLink.style.display = 'none';
+        logoutLink.parentElement.style.display = 'inline';
+        loginLink.parentElement.style.display = 'none';
+        registerLink.parentElement.style.display = 'none';
     }
+
+    // Function to show search form only if logged in
+    function showSearchForm() {
+        if (localStorage.getItem('token')) {
+            searchContainer.style.display = 'block';
+        } else {
+            searchContainer.style.display = 'none';
+        }
+    }
+
+    // Function to search books (example, replace with actual API call)
+    function searchBooks(searchTerm) {
+        const token = localStorage.getItem('token');
+        fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle search results
+            console.log('Search results:', data);
+            // Example: Render search results on the page
+            renderSearchResults(data);
+        })
+        .catch(error => console.error('Error searching books:', error));
+    }
+
+    function renderSearchResults(results) {
+        // Example: Render results in a list
+        let html = '<h2>Search Results</h2><ul>';
+        results.forEach(result => {
+            html += `<li><a href="#" class="book-link" data-id="${result.id}">${result.title}</a> by <a href="#" class="author-link" data-id="${result.author.id}">${result.author.name}</a></li>`;
+        });
+        html += '</ul>';
+        content.innerHTML = html;
+    
+        document.querySelectorAll('.book-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                renderBookDetailsPage(this.dataset.id);
+            });
+        });
+    
+        document.querySelectorAll('.author-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                renderAuthorDetailsPage(this.dataset.id);
+            });
+        });
+
+        // clearSearchInput();
+    } 
+    
+    function clearSearchInput() {
+        searchInput.value = '';
+    }    
     
     // Event listeners for navigation links
     homeLink.addEventListener('click', renderHomePage);
     loginLink.addEventListener('click', renderLoginPage);
     registerLink.addEventListener('click', renderRegisterPage);
     logoutLink.addEventListener('click', logout);
+    // Event listener for search form submission
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm !== '') {
+            // Implement search functionality (backend API call)
+            searchBooks(searchTerm); // Example function, replace with actual implementation
+        }
+    });
 
     // Initially render the home page or login page based on token existence
     if (localStorage.getItem('token')) {
         renderHomePage();
+        showSearchForm();
     } else {
         renderLoginPage();
     }

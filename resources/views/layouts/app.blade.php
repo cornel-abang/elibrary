@@ -16,6 +16,12 @@
             <li><a href="#" id="logout-link">Logout</a></li>
         </ul>
     </nav>
+    <div id="search-container">
+        <form id="search-form">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
     <div id="content"></div>
     <script src="{{ asset('assets/js/app.js') }}"></script>
 </body>

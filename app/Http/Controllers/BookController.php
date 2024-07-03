@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Services\BookService;
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 
@@ -59,5 +60,13 @@ class BookController extends Controller
     {
         $this->service->deleteBook($book);
         return response()->noContent();
+    }
+
+    public function search(SearchRequest $request)
+    {
+        $query = trim($request->input('q'));
+        $result = $this->service->searchBooks($query);
+
+        return response()->json($result);
     }
 }

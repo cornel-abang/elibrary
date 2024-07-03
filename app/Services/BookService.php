@@ -57,4 +57,17 @@ class BookService
     {
         return $book->delete();
     }
+
+    public function searchBooks(string $queryString)
+    {
+        $books = Book::with('author')
+            ->where('title', 'like', "%{$queryString}%")
+            ->orWhereHas('author', function($query) use ($queryString)
+                {
+                    $query->where('name', 'like', "%{$queryString}%");
+                })
+            ->get();
+
+        return $books;
+    }
 }

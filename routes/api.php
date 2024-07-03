@@ -19,5 +19,6 @@ Route::group([
 Route::middleware('auth:api')->group(function () {
     Route::apiResource('books', BookController::class);
     Route::apiResource('authors', AuthorController::class);
+    Route::get('search', [BookController::class, 'search']);
 });
 
