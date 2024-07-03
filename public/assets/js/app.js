@@ -538,6 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const password_confirmation = document.getElementById('password_confirmation').value;
+
             fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {
@@ -547,8 +548,8 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                if (data.access_token) {
-                    localStorage.setItem('token', data.access_token);
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
                     renderHomePage();
                 } else {
                     let errorsHtml = '';

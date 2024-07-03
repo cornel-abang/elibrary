@@ -20,7 +20,11 @@ class AuthenticationController extends Controller
             $request->validated()
         );
 
-        return response()->json($user, 201);
+        $token = $this->authService->attemptUserLogin(
+            $request->only('email', 'password')
+        );
+
+        return response()->json(compact('user', 'token'), 201);
     }
 
     public function login(LoginRequest $request)

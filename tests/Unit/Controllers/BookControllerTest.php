@@ -7,6 +7,7 @@ use Tests\TestCase;
 use App\Models\Book;
 use App\Models\Author;
 use App\Services\BookService;
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Controllers\BookController;
 use App\Http\Requests\UpdateBookRequest;
@@ -104,5 +105,53 @@ class BookControllerTest extends TestCase
         $response = $this->controller->destroy($book);
 
         $this->assertEquals(204, $response->getStatusCode());
+    }
+
+    public function testSearchOnBook()
+    {
+        $title = 'test';
+        $book = Book::factory(['title' => $title])
+            ->for(Author::factory())
+            ->create();
+
+        $request = Mockery::mock(SearchRequest::class);
+        $request->shouldReceive('input')
+            ->once()
+            ->andReturn($title);
+
+        $this->service->shouldReceive('searchBooks')
+            ->once()
+            ->with($title)
+            ->andReturn($book);
+
+        $response = $this->controller->search($request);
+
+        $this->assertJson($response->getContent());
+        $this->assertSame($title, json_decode($response->getContent(), true)['title']);
+    }
+
+    public function testSearchOnAuthor()
+    {
+        $title = 'oga-author';
+        $book = Book::factory()
+            ->for(Author::factory(['name' => $title]))
+            ->create();
+
+        $request = Mockery::mock(SearchRequest::class);
+        $request->shouldReceive('input')
+            ->once()
+            ->andReturn($title);
+
+        $this->service->shouldReceive('searchBooks')
+            ->once()
+            ->with($title)
+            ->andReturn($book->with("author")->get());
+
+        $response = $this->controller->search($request);
+        
+        $this->assertJson($response->getContent());
+        $this->assertSame(
+            $title, json_decode($response->getContent(), true)[0]['author']['name']
+        );
     }
 }

@@ -28,7 +28,7 @@ class AuthenticationControllerTest extends TestCase
     {
         $userData = [
             'name' => 'John Doe', 
-            'email' => 'atest', 
+            'email' => 'atest@mail.com', 
             'password' => 'password'
         ];
 
@@ -37,10 +37,25 @@ class AuthenticationControllerTest extends TestCase
             ->once()
             ->andReturn($userData);
 
+        $loginData = [
+            'email' => 'atest@mail.com', 
+            'password' => 'password'
+        ];
+
+        $request->shouldReceive('only')
+            ->once()
+            ->andReturn($loginData);
+
         $this->authService->shouldReceive('registerUser')
             ->once()
             ->with($userData)
-            ->andReturn(['name' => 'John Doe', 'email' => 'atest']);
+            ->andReturn(['name' => 'John Doe', 'email' => 'atest@mail.com']);
+
+        $token = 'mocked_jwt_token';
+        $this->authService->shouldReceive('attemptUserLogin')
+            ->once()
+            ->with($loginData)
+            ->andReturn($token);
 
         $response = $this->controller->register($request);
 
