@@ -1,13 +1,22 @@
+/** 
+ * Event listener for 'DOMContentLoaded' event to initialize the page content and behaviors.
+ * Sets up various elements and their event handlers based on user interaction.
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    const content = document.getElementById('content');
-    const homeLink = document.getElementById('home-link');
-    const loginLink = document.getElementById('login-link');
-    const registerLink = document.getElementById('register-link');
-    const logoutLink = document.getElementById('logout-link');
-    const searchContainer = document.getElementById('search-container');
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
+    const content = document.getElementById('content'); // Main content area
+    const homeLink = document.getElementById('home-link'); // Home link element
+    const loginLink = document.getElementById('login-link'); // Login link element
+    const registerLink = document.getElementById('register-link'); // Register link element
+    const logoutLink = document.getElementById('logout-link'); // Logout link element
+    const searchContainer = document.getElementById('search-container'); // Search container element
+    const searchForm = document.getElementById('search-form'); // Search form element
+    const searchInput = document.getElementById('search-input'); // Search input element
 
+    /**
+     * Renders the home page content based on token existence.
+     * If token is absent, renders login page; 
+     * otherwise, fetches and displays books.
+     */
     function renderHomePage() {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -61,9 +70,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         showLogoutHideLoginAndRegisterLinks();
         hideSearchForm(false);
-        clearSearchInput(); // after every home navigation
+        clearSearchInput();
     }
 
+    /**
+     * Hides or shows the searchs form
+     * 
+     * @param {boolean} yes - It is hidden by default (See css: #search-container) 
+     * otherwise, shows it.
+     */
     function hideSearchForm(yes = true)
     {
         let search = document.getElementById("search-container");
@@ -77,6 +92,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    /**
+     * Renders the detailed page for a specific Book.
+     * Fetches book details using the provided bookId.
+     * 
+     * @param {string} bookId
+     */
     function renderBookDetailsPage(bookId) {
         const token = localStorage.getItem('token');
         fetch(`/api/books/${bookId}`, {
@@ -111,6 +132,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching book details:', error));
     }
 
+    /**
+     * Renders the detailed page for a specific Author.
+     * Fetches author details using the provided authorId.
+     * 
+     * @param {string} authorId
+     */
     function renderAuthorDetailsPage(authorId) {
         const token = localStorage.getItem('token');
         fetch(`/api/authors/${authorId}`, {
@@ -139,6 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching author details:', error));
     }
 
+    /**
+     * Renders the form for adding a new book.
+     * Sets up form submission handling to send data to the backend.
+     */
     function renderAddBookForm() {
         const html = `
             <h1>Add Book</h1>
@@ -155,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         content.innerHTML = html;
     
-        fetchAndPopulateAuthors('author');
+        fetchAndPopulateAuthors('author'); // fetches and popluates authors for selection
     
         document.getElementById('book-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -186,6 +217,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    /**
+     * Fetches authors from the backend and populates the given select element.
+     * 
+     * @param {string} selectElementId - The ID of the <select> element to populate with Authors.
+     */
+    function fetchAndPopulateAuthors(selectElementId) {
+        const token = localStorage.getItem('token');
+        fetch('/api/authors', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(authors => {
+            const selectElement = document.getElementById(selectElementId);
+            selectElement.innerHTML = '';
+            authors.forEach(author => {
+                const option = document.createElement('option');
+                option.value = author.id;
+                option.text = author.name;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching authors:', error));
+    }
+
+    /**
+     * Renders the form for adding a new Author.
+     * 
+     * Sets up form submission handling to send data to the backend.
+     */
     function renderAddAuthorForm() {
         const html = `
             <h1>Add Author</h1>
@@ -228,7 +290,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Modified renderEditBookForm
+    /**
+     * Renders the form for editing an existing Book.
+     * Fetches current Book details and populates the form fields.
+     * 
+     * Sets up form submission handling 
+     * to send data to the backend.
+     * 
+     * @param {string} bookId
+     */
     function renderEditBookForm(bookId) {
         const token = localStorage.getItem('token');
         fetch(`/api/books/${bookId}`, {
@@ -287,6 +357,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching book:', error));
     }
 
+    /**
+     * Renders the form for editing an existing Author.
+     * Fetches current Author details and populates the form fields.
+     * 
+     * Sets up form submission handling to send data to the backend.
+     * 
+     * @param {string} authorId - The ID of the author to edit.
+     */
     function renderEditAuthorForm(authorId) {
         const token = localStorage.getItem('token');
         fetch(`/api/authors/${authorId}`, {
@@ -339,28 +417,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching author:', error));
     }
 
-    // Fetch authors and populate the dropdown select
-    function fetchAndPopulateAuthors(selectElementId) {
-        const token = localStorage.getItem('token');
-        fetch('/api/authors', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => response.json())
-        .then(authors => {
-            const selectElement = document.getElementById(selectElementId);
-            selectElement.innerHTML = '';
-            authors.forEach(author => {
-                const option = document.createElement('option');
-                option.value = author.id;
-                option.text = author.name;
-                selectElement.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error fetching authors:', error));
-    }
-
+    /**
+     * Confirms and deletes the Book with the specified ID.
+     * 
+     * @param {string} bookId
+     */
     function deleteBook(bookId) {
         if (confirm("Are you sure about deleting that Book?")) {
             const token = localStorage.getItem('token');
@@ -375,6 +436,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Confirms deletes the Author with the specified ID.
+     * 
+     * @param {string} authorId
+     */
     function deleteAuthor(authorId) {
         if (confirm("Are you sure about deleting this Author?")) {
             const token = localStorage.getItem('token');
@@ -389,6 +455,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Renders the login form.
+     * 
+     * Sets up form submission handling 
+     * to send the auth data to the backend.
+     * 
+     * And loads the appropriate page in response
+     * 
+     */
     function renderLoginPage() {
         const html = `
             <h1>Login</h1>
@@ -430,6 +505,15 @@ document.addEventListener('DOMContentLoaded', function() {
         hideLogoutShowLoginAndRegisterLinks();
     }
 
+    /**
+     * Renders the user registration form.
+     * 
+     * Sets up form submission handling 
+     * to send the auth data to the backend.
+     * 
+     * And loads the appropriate page in response
+     * 
+     */
     function renderRegisterPage() {
         const html = `
             <h1>Register</h1>
@@ -477,6 +561,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    /**
+     * Logout and reset the page
+     */
     function logout() {
         localStorage.removeItem('token');
         renderLoginPage();
@@ -485,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Hide the entire link (with their parent li)
+     * Hide the links (with the parent - li)
      */
     function hideLogoutShowLoginAndRegisterLinks(){
         logoutLink.parentElement.style.display = 'none';
@@ -493,13 +580,18 @@ document.addEventListener('DOMContentLoaded', function() {
         registerLink.parentElement.style.display = 'inline';
     }
 
+    /**
+     * Hide the links (with the parent - li)
+     */
     function showLogoutHideLoginAndRegisterLinks(){
         logoutLink.parentElement.style.display = 'inline';
         loginLink.parentElement.style.display = 'none';
         registerLink.parentElement.style.display = 'none';
     }
 
-    // Function to show search form only if logged in
+    /**
+     * Show search form for only logged in users
+     */
     function showSearchForm() {
         if (localStorage.getItem('token')) {
             searchContainer.style.display = 'block';
@@ -508,7 +600,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to search books (example, replace with actual API call)
+    /**
+     * Send search request to the backend
+     * 
+     * And handle response accordingly
+     * 
+     * @param {string} searchTerm 
+     */
     function searchBooks(searchTerm) {
         const token = localStorage.getItem('token');
         fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`, {
@@ -518,16 +616,23 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            // Handle search results
-            console.log('Search results:', data);
-            // Example: Render search results on the page
-            renderSearchResults(data);
+            if (data.length > 0) {
+                renderSearchResults(data);
+            }else{
+                content.innerHTML = `<h2>Search Results:</h2> <i>No results matching: <b> ${searchTerm}</b>`;
+            }
         })
         .catch(error => console.error('Error searching books:', error));
     }
 
+    /**
+     * Renders the search result on the page
+     * 
+     * And sets up event handlers to view response details
+     * 
+     * @param {object} results 
+     */
     function renderSearchResults(results) {
-        // Example: Render results in a list
         let html = '<h2>Search Results</h2><ul>';
         results.forEach(result => {
             html += `<li><a href="#" class="book-link" data-id="${result.id}">${result.title}</a> by <a href="#" class="author-link" data-id="${result.author.id}">${result.author.name}</a></li>`;
@@ -552,30 +657,58 @@ document.addEventListener('DOMContentLoaded', function() {
         // clearSearchInput();
     } 
     
+    /**
+     * Clear the inputed value in the search input field
+     */
     function clearSearchInput() {
         searchInput.value = '';
-    }    
+    }
     
-    // Event listeners for navigation links
-    homeLink.addEventListener('click', renderHomePage);
-    loginLink.addEventListener('click', renderLoginPage);
-    registerLink.addEventListener('click', renderRegisterPage);
-    logoutLink.addEventListener('click', logout);
-    // Event listener for search form submission
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const searchTerm = searchInput.value.trim();
-        if (searchTerm !== '') {
-            // Implement search functionality (backend API call)
-            searchBooks(searchTerm); // Example function, replace with actual implementation
-        }
-    });
+    /**
+     * Sets up event listeners for navigation links:
+     * (Home, Login, Register, Logout).
+     * 
+     * And for search form
+     */
+    function setupNavigationsAndSearch() {
+        homeLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            renderHomePage();
+        });
 
-    // Initially render the home page or login page based on token existence
-    if (localStorage.getItem('token')) {
+        loginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            renderLoginPage();
+        });
+
+        registerLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            renderRegisterPage();
+        });
+
+        logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm !== '') {
+                searchBooks(searchTerm);
+            }
+        });
+    }
+    
+    // Initialize the SPA (Single Page Application)
+    function init() {
+        setupNavigationsAndSearch();
         renderHomePage();
         showSearchForm();
-    } else {
-        renderLoginPage();
     }
+
+    /**
+     * Start up the SPA
+     */
+    init();
 });

@@ -18,7 +18,7 @@
     </nav>
     <div id="search-container">
         <form id="search-form">
-            <input type="text" id="search-input" placeholder="Search...">
+            <input type="text" id="search-input" placeholder="Search a book or author..">
             <button type="submit">Search</button>
         </form>
     </div>
