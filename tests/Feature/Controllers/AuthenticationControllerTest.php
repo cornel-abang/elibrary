@@ -64,23 +64,6 @@ class AuthenticationControllerTest extends TestCase
                  ]);
     }
 
-    public function testMe()
-    {
-        $user = User::factory()->create();
-
-        $token = JWTAuth::fromUser($user);
-
-        $response = $this->withHeaders([
-            'Authorization' => "Bearer {$token}",
-        ])->getJson('/api/auth/me');
-
-        $response->assertStatus(200)
-                 ->assertJson([
-                     'id' => $user->id,
-                     'email' => $user->email
-                 ]);
-    }
-
     public function testLogout()
     {
         $user = User::factory()->create();
@@ -94,24 +77,6 @@ class AuthenticationControllerTest extends TestCase
         $response->assertStatus(200)
                  ->assertJson([
                      'message' => 'Successfully logged out'
-                 ]);
-    }
-
-    public function testRefresh()
-    {
-        $user = User::factory()->create();
-
-        $token = JWTAuth::fromUser($user);
-
-        $response = $this->withHeaders([
-            'Authorization' => "Bearer {$token}",
-        ])->postJson('/api/auth/refresh');
-
-        $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'access_token',
-                     'token_type',
-                     'expires_in'
                  ]);
     }
 }

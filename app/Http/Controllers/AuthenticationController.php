@@ -43,18 +43,6 @@ class AuthenticationController extends Controller
         return $this->respondWithToken($token);
     }
 
-    /**
-     * Return the currently authenticated user
-     * 
-     * @return JsonResponse 
-     */
-    public function me()
-    {
-        return response()->json(
-            $this->authService->fetchCurrentUser()
-        );
-    }
-
     public function logout()
     {
         $this->authService->logUserOut();
@@ -63,28 +51,7 @@ class AuthenticationController extends Controller
             ['message' => 'Successfully logged out']
         );
     }
-
-    /**
-     * Refresh users' auth token 
-     * 
-     * @return JsonResponse 
-     */
-    public function refresh()
-    {
-        try {
-            
-            $refreshedToken = $this->authService->refreshAuthToken();
-
-            return $this->respondWithToken($refreshedToken);
-
-        } catch (JWTException $e ) {
-            return response()->json(
-                ['error' => 'Could not refresh token'], 
-                401
-            );
-        }
-    }
-
+    
     /**
      * Responsible for responses with access token 
      * 

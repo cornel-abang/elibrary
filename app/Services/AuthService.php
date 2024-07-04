@@ -62,14 +62,4 @@ class AuthService
         auth('api')->logout();
         return true;
     }
-
-    /**
-     * Refresh the current users' auth token 
-     * 
-     * @return string - the refreshed token
-    */
-    public function refreshAuthToken()
-    {
-        return JWTAuth::parseToken()->refresh();
-    }
 }

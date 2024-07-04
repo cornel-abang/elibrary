@@ -92,15 +92,4 @@ class AuthServiceTest extends TestCase
 
         $this->assertTrue($loggedOut);
     }
-
-    public function testRefreshAuthToken()
-    {
-        JWTAuth::shouldReceive('parseToken->refresh')
-            ->once()
-            ->andReturn('refreshed_jwt_token');
-
-        $token = $this->authService->refreshAuthToken();
-
-        $this->assertEquals('refreshed_jwt_token', $token);
-    }
 }

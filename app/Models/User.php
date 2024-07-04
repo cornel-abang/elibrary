@@ -7,6 +7,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property CarbonInterface $created_at
+ * @property CarbonInterface $updated_at
+ */
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;

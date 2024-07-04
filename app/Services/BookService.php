@@ -58,6 +58,11 @@ class BookService
         return $book->delete();
     }
 
+    /**
+     * Initiate db search for the query string 
+     *
+     * @return Book
+    */
     public function searchBooks(string $queryString)
     {
         $books = Book::with('author')
