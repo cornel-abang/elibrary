@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const token = localStorage.getItem('token');
         if (!token) {
             renderLoginPage();
-            hideLogoutShowLoginAndRegisterLinks();
+            hideAuthLinks();
             return;
         }
 
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => console.error('Error fetching books:', error));
 
-        showLogoutHideLoginAndRegisterLinks();
+        showAuthLinks();
         hideSearchForm(false);
         clearSearchInput();
     }
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        hideLogoutShowLoginAndRegisterLinks();
+        hideAuthLinks();
     }
 
     /**
@@ -568,15 +568,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function logout() {
         localStorage.removeItem('token');
         renderLoginPage();
-        hideLogoutShowLoginAndRegisterLinks();
+        hideAuthLinks();
         hideSearchForm();
     }
 
     /**
      * Hide the links (with the parent - li)
      */
-    function hideLogoutShowLoginAndRegisterLinks(){
+    function hideAuthLinks(){
         logoutLink.parentElement.style.display = 'none';
+        homeLink.parentElement.style.display = 'none';
         loginLink.parentElement.style.display = 'inline';
         registerLink.parentElement.style.display = 'inline';
     }
@@ -584,8 +585,9 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Hide the links (with the parent - li)
      */
-    function showLogoutHideLoginAndRegisterLinks(){
+    function showAuthLinks(){
         logoutLink.parentElement.style.display = 'inline';
+        homeLink.parentElement.style.display = 'inline';
         loginLink.parentElement.style.display = 'none';
         registerLink.parentElement.style.display = 'none';
     }
